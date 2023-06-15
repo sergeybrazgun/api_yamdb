@@ -12,7 +12,7 @@ class Review(models.Model):
     '''Модель отзывов.'''
     author = models.ForeignKey(
         User,
-        related_name='reviews',
+        related_name='reviews1',
         on_delete=models.CASCADE,
         verbose_name='Автор отзыва',
     )
@@ -101,8 +101,15 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.CharField('имя произведения', max_length=30)
-    year = models.IntegerField('год выхода')
-    category = models.ForeignKey(Category, null=True,related_name='titles', verbose_name='категория', on_delete=models.SET_NULL)
+    year = models.IntegerField('год выхода',
+                               validators=[
+                               MinValueValidator(1900, message='До 1900ого года никто ничего не придумал'),
+                               MaxValueValidator(2023, message='Не надо добавлять произведения из будущего')],)
+    category = models.ForeignKey(Category,
+                                 related_name='titles',
+                                 null=True,
+                                verbose_name='категория',
+                                 on_delete=models.SET_NULL)
     genre = models.ManyToManyField(Genre, through='GenreTitle', verbose_name='жанр')
 
     def __str__(self):
