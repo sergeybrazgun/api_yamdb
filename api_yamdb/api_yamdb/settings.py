@@ -28,7 +28,7 @@ INSTALLED_APPS = [
 ]
 
 STATIC_ROOT = BASE_DIR / 'static' / 'data'
-
+AUTH_USER_MODEL = 'reviews.User'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

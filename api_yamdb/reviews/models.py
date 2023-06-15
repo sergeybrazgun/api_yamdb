@@ -1,11 +1,30 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
-
+from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
-
 from django.db import models
 
-User = get_user_model()
 
+class SampleModel(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE)
+
+
+class User(AbstractUser):
+    authentificated='auth_user'
+    moderator='moderator'
+    admin='admin'
+    superuser='superuser'
+    
+    bio = models.TextField('Биография', blank=True)
+    user_role = models.CharField(max_length=15, choices=[(authentificated, 'Аутентифицированный пользователь'),
+                                                         (moderator, 'Модератор'), (admin, 'Администратор'),
+                                                          (superuser, 'Суперюзер Django')], default=authentificated)
+
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+        ordering = ['username']
 
 
 class Review(models.Model):
@@ -29,8 +48,10 @@ class Review(models.Model):
     score = models.PositiveSmallIntegerField(
         'Оценка произведения',
         validators=[
-            MinValueValidator(1, message='Оценка должна быть не меньше 1.'),
-            MaxValueValidator(10, message='Оценка должна быть не больше 10.')
+            MinValueValidator(
+                1, message='Оценка должна быть не меньше 1.'),
+            MaxValueValidator(
+                10, message='Оценка должна быть не больше 10.')
         ],
     )
 
@@ -91,26 +112,27 @@ class Genre(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     class Meta:
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
         ordering = ['name']
 
 
-
 class Title(models.Model):
     name = models.CharField('имя произведения', max_length=30)
     year = models.IntegerField('год выхода',
                                validators=[
-                               MinValueValidator(1900, message='До 1900ого года никто ничего не придумал'),
-                               MaxValueValidator(2023, message='Не надо добавлять произведения из будущего')],)
+                                   MinValueValidator(
+                                       1900, message='До 1900ого года никто ничего не придумал'),
+                                   MaxValueValidator(2023, message='Не надо добавлять произведения из будущего')],)
     category = models.ForeignKey(Category,
                                  related_name='titles',
                                  null=True,
-                                verbose_name='категория',
+                                 verbose_name='категория',
                                  on_delete=models.SET_NULL)
-    genre = models.ManyToManyField(Genre, through='GenreTitle', verbose_name='жанр')
+    genre = models.ManyToManyField(
+        Genre, through='GenreTitle', verbose_name='жанр')
 
     def __str__(self):
         return f'{self.name} ({self.year})'
@@ -119,6 +141,7 @@ class Title(models.Model):
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
         ordering = ['name']
+
 
 class GenreTitle(models.Model):
     title_id = models.ForeignKey(Title, on_delete=models.CASCADE)
@@ -130,4 +153,3 @@ class GenreTitle(models.Model):
     class Meta:
         verbose_name = 'Связь Жанров и Произведений'
         verbose_name_plural = 'Связь Жанров и Произведений'
-
