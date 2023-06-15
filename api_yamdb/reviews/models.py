@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -94,8 +93,8 @@ class Comments(models.Model):
 
 class Category(models.Model):
     name = models.CharField(
-        'название категории', max_length=30)
-    slug = models.SlugField('слаг категории', unique=True)
+        'название категории', max_length=256)
+    slug = models.SlugField('слаг категории', max_length=50, unique=True)
 
     def __str__(self):
         return self.name
@@ -103,12 +102,12 @@ class Category(models.Model):
     class Meta:
         verbose_name = 'Категории'
         verbose_name_plural = 'Категория'
-        ordering = ['name']
+        ordering = ['slug']
 
 
 class Genre(models.Model):
-    name = models.CharField('название жанра', max_length=30)
-    slug = models.SlugField('слаг категории', unique=True)
+    name = models.CharField('название жанра', max_length=256)
+    slug = models.SlugField('слаг категории', max_length=50, unique=True)
 
     def __str__(self):
         return self.name
@@ -120,7 +119,7 @@ class Genre(models.Model):
 
 
 class Title(models.Model):
-    name = models.CharField('имя произведения', max_length=30)
+    name = models.CharField('имя произведения', max_length=256)
     year = models.IntegerField('год выхода',
                                validators=[
                                    MinValueValidator(
