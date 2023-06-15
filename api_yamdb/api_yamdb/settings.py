@@ -23,9 +23,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'reviews.apps.ReviewsConfig',
     'api.apps.ApiConfig',
-    'rest_framework',  
+    'rest_framework',
+    'import_export',  
 ]
 
+STATIC_ROOT = BASE_DIR / 'static' / 'data'
+AUTH_USER_MODEL = 'reviews.User'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
