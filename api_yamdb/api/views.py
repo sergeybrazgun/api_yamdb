@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import (permissions,
                             viewsets,
                             )
+from rest_framework.exceptions import ParseError
 from rest_framework.pagination import LimitOffsetPagination
 from reviews.models import (Review,
                             Title,
@@ -28,6 +29,11 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+        if Review.objects.filter(
+            title=title,
+            author=self.request.user
+        ).exists():
+            raise ParseError
         serializer.save(
             author=self.request.user, title=title
         )
@@ -43,16 +49,18 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         review = get_object_or_404(
-            Review, pk=self.kwargs.get('review_id'),
-            title_id=self.kwargs.get('title_id')
+            Review,
+            pk=self.kwargs.get('review_id'),
+            title_id=self.kwargs.get('title_id'),
         )
         new_queryset = review.comments.all()
         return new_queryset
 
     def perform_create(self, serializer):
         review = get_object_or_404(
-            Review, pk=self.kwargs.get('review_id'),
-            title_id=self.kwargs.get('title_id')
+            Review,
+            pk=self.kwargs.get('review_id'),
+            title_id=self.kwargs.get('title_id'),
         )
         serializer.save(
             author=self.request.user, review=review
