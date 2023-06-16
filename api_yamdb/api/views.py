@@ -1,23 +1,99 @@
 
 from django.shortcuts import get_object_or_404
-from rest_framework import (permissions,
-                            viewsets,
-                            )
 from rest_framework.pagination import LimitOffsetPagination
-from reviews.models import (Review,
-                            Title,
-                            )
 
-from api.permissions import IsAuthorOrModeratorOrAdminOrReadOnly
-from api.serializers import (ReviewSerializer,
-                             CommentSerializer,
-                             )
-from django.shortcuts import render
-from rest_framework import viewsets
-from reviews.models import Category, Genre, GenreTitle, Title
+from .permissions import IsAuthorOrModeratorOrAdminOrReadOnly, AdminOnly
+from rest_framework import viewsets, permissions, status, generics
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
+from rest_framework.filters import SearchFilter
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib.auth.tokens import default_token_generator
+from reviews.models import Category, Genre, GenreTitle, Title, User, Review
 
 from .serializers import (CategorySerializer, GenreSerializer,
-                          GenreTitleSerializer, TitleSerializer)
+                          GenreTitleSerializer, TitleSerializer, ReviewSerializer,
+                          CommentSerializer, UserSerializer,
+                          CurrentUserSerializer, SignUpSerializer, TokenSerializer)
+from rest_framework_simplejwt.tokens import AccessToken
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    lookup_field = 'username'
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = (AdminOnly,)
+    search_fields = ('username',)
+    filter_backends = (SearchFilter,)
+    http_method_names = ['get', 'post', 'patch', 'delete']
+
+    @action(
+        methods=['GET', 'PATCH'],
+        detail=False,
+        url_path='me',
+        permission_classes=[permissions.IsAuthenticated],
+    )
+    def users_profile(self, request):
+
+        if request.method == 'PATCH':
+            serializer = CurrentUserSerializer(
+                self.request.user, data=request.data, partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(
+                serializer.data, status=status.HTTP_200_OK
+            )
+        serializer = CurrentUserSerializer(self.request.user)
+        return Response(serializer.data)
+
+
+class SignUpView(APIView):
+
+    queryset = User.objects.all()
+    serializer_class = SignUpSerializer
+    permission_classes = (AllowAny,)
+
+    def post(self, request):
+        serializer = SignUpSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        username = serializer.data.get('username')
+        email = serializer.data.get('email')
+        user, created = User.objects.get_or_create(
+            username=username,
+            email=email
+        )
+        confirmation_code = default_token_generator.make_token(user)
+        send_mail(
+            'Код подтверждения',
+            f'Код подтверждения: {confirmation_code}.',
+            from_email=settings.EMAIL_ADMIN,
+            recipient_list=[email]
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class TokenObtainView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = TokenSerializer
+    permission_classes = (AllowAny,)
+
+    def post(self, request):
+        serializer = TokenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        username = serializer.data.get('username')
+        confirmation_code = serializer.data.get('confirmation_code')
+        user = get_object_or_404(User, username=username)
+        if default_token_generator.check_token(user, confirmation_code):
+            token = AccessToken.for_user(user)
+            return Response({'token': f'{token}'}, status=status.HTTP_200_OK)
+        return Response(
+            {'message': 'Неверный код подтверждения.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -65,22 +141,22 @@ class CommentViewSet(viewsets.ModelViewSet):
             author=self.request.user, review=review
         )
 
+
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset =Title.objects.all()
+    queryset = Title.objects.all()
     serializer_class = TitleSerializer
 
 
 class GenreViewSet(viewsets.ModelViewSet):
-    queryset =Genre.objects.all()
+    queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    queryset =Category.objects.all()
+    queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
 class GenreTitleViewSet(viewsets.ModelViewSet):
-    queryset =GenreTitle.objects.all()
+    queryset = GenreTitle.objects.all()
     serializer_class = GenreTitleSerializer
-

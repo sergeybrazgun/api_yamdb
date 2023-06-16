@@ -1,8 +1,8 @@
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from reviews.validators import validate_username
 
 
 class SampleModel(models.Model):
@@ -11,20 +11,72 @@ class SampleModel(models.Model):
 
 
 class User(AbstractUser):
-    authentificated='auth_user'
-    moderator='moderator'
-    admin='admin'
-    superuser='superuser'
-    
-    bio = models.TextField('Биография', blank=True)
-    user_role = models.CharField(max_length=15, choices=[(authentificated, 'Аутентифицированный пользователь'),
-                                                         (moderator, 'Модератор'), (admin, 'Администратор'),
-                                                          (superuser, 'Суперюзер Django')], default=authentificated)
+    USER = 'user'
+    ADMIN = 'admin'
+    MODERATOR = 'moderator'
+
+    ROLE_CHOICES = (
+        (USER, 'Пользователь'),
+        (ADMIN, 'Админ'),
+        (MODERATOR, 'Модератор'),
+    )
+
+    username = models.CharField(
+        validators=[validate_username],
+        max_length=150,
+        unique=True,
+        blank=False,
+        null=False
+    )
+    email = models.EmailField(
+        max_length=254,
+        unique=True,
+        blank=False,
+        null=False
+    )
+    role = models.CharField(
+        max_length=20,
+        choices=ROLE_CHOICES,
+        default=USER,
+        blank=True
+    )
+    bio = models.TextField(
+        blank=True,
+    )
+    first_name = models.CharField(
+        max_length=150,
+        blank=True
+    )
+    last_name = models.CharField(
+        max_length=150,
+        blank=True
+    )
+    confirmation_code = models.CharField(
+        max_length=255,
+        null=True,
+        blank=False,
+        default='XXXX'
+    )
 
     class Meta:
+        ordering = ('id',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
-        ordering = ['username']
+
+    @property
+    def is_user(self):
+        return self.role == self.USER
+
+    @property
+    def is_moderator(self):
+        return self.role == self.MODERATOR
+
+    @property
+    def is_admin(self):
+        return self.role == self.ADMIN or self.is_superuser
+
+    def __str__(self):
+        return self.username
 
 
 class Review(models.Model):

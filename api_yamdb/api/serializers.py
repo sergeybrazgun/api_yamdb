@@ -1,10 +1,7 @@
 from rest_framework import serializers
-
-from reviews.models import (Review,
-                            Comments,
-                            )
-from reviews.models import Category, Genre, GenreTitle, Title
-
+from reviews.models import (Category, Genre, GenreTitle,
+                            Title, User, Review, Comments)
+from reviews.validators import validate_username
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -40,7 +37,6 @@ class CommentSerializer(serializers.ModelSerializer):
         read_only_fields = ('review', 'author')
 
 
-
 class TitleSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
@@ -59,8 +55,71 @@ class GenreSerializer(serializers.ModelSerializer):
         model = Genre
 
 
-
 class GenreTitleSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = GenreTitle
+
+
+class UserSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(
+        required=True,
+        max_length=150,
+        validators=[validate_username, ])
+
+    class Meta:
+        fields = (
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'bio',
+            'role',
+        )
+        model = User
+
+
+class CurrentUserSerializer(serializers.ModelSerializer):
+    role = serializers.ReadOnlyField()
+
+    class Meta:
+        model = User
+        fields = (
+            'username', 'email', 'first_name',
+            'last_name', 'bio', 'role'
+        )
+
+
+class SignUpSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(
+        max_length=150,
+        validators=[validate_username,]
+    )
+    email = serializers.EmailField(max_length=254,)
+
+    def validate_username(self, value):
+        if value == 'me':
+            raise serializers.ValidationError(
+                'me нельзя использовать в качестве имени',
+            )
+        return value
+
+    class Meta:
+        model = User
+        fields = ('email', 'username')
+
+
+class TokenSerializer(serializers.Serializer):
+    username = serializers.CharField(
+        required=True,
+        max_length=150,
+        validators=[validate_username, ]
+    )
+    confirmation_code = serializers.CharField(required=True)
+
+    class Meta:
+        model = User
+        fields = (
+            'username',
+            'confirmation_code'
+        )
