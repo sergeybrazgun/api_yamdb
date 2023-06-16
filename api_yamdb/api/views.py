@@ -1,24 +1,13 @@
-
-from django.shortcuts import get_object_or_404
-from rest_framework import (permissions,
-                            viewsets,
-                            )
+from api.permissions import IsAuthorOrModeratorOrAdminOrReadOnly
+from django.shortcuts import get_object_or_404, render
+from rest_framework import filters, permissions, viewsets
 from rest_framework.exceptions import ParseError
 from rest_framework.pagination import LimitOffsetPagination
-from reviews.models import (Review,
-                            Title,
-                            )
+from reviews.models import Category, Genre, GenreTitle, Review, Title, User
 
-from api.permissions import IsAuthorOrModeratorOrAdminOrReadOnly
-from api.serializers import (ReviewSerializer,
-                             CommentSerializer,
-                             )
-from django.shortcuts import render
-from rest_framework import viewsets
-from reviews.models import Category, Genre, GenreTitle, Title
-
-from .serializers import (CategorySerializer, GenreSerializer,
-                          GenreTitleSerializer, TitleSerializer)
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, GenreTitleSerializer,
+                          ReviewSerializer, TitleSerializer, UserSerializer)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -73,22 +62,37 @@ class CommentViewSet(viewsets.ModelViewSet):
             author=self.request.user, review=review
         )
 
+
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset =Title.objects.all()
+    queryset = Title.objects.all()
     serializer_class = TitleSerializer
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
 
 
 class GenreViewSet(viewsets.ModelViewSet):
-    queryset =Genre.objects.all()
+    queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+    lookup_field = 'slug'
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    queryset =Category.objects.all()
+    queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+    lookup_field = 'slug'
 
 
 class GenreTitleViewSet(viewsets.ModelViewSet):
-    queryset =GenreTitle.objects.all()
+    queryset = GenreTitle.objects.all()
     serializer_class = GenreTitleSerializer
 
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    search_fields = ('username',)
+    lookup_field = 'slug'

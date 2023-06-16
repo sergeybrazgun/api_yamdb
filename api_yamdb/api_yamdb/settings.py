@@ -23,8 +23,17 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'reviews.apps.ReviewsConfig',
     'api.apps.ApiConfig',
-    'rest_framework',  
+    'rest_framework',
+    'import_export',  
 ]
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 5,
+} 
+
+STATIC_ROOT = BASE_DIR / 'static' / 'data'
+
+AUTH_USER_MODEL = 'reviews.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
