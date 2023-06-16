@@ -30,14 +30,14 @@ class Review(models.Model):
     '''Модель отзывов.'''
     author = models.ForeignKey(
         User,
-        related_name='reviews1',
+        related_name='author_review',
         on_delete=models.CASCADE,
         verbose_name='Автор отзыва',
     )
     title = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='reviews',
+        related_name='review_title',
         verbose_name='Оцениваемое произведение',
     )
     text = models.TextField('Текст отзыва')
