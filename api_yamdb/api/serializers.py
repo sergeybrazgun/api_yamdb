@@ -1,7 +1,9 @@
 from rest_framework import serializers
+
 from reviews.models import (Category, Genre, GenreTitle,
                             Title, User, Review, Comments)
 from reviews.validators import validate_username
+
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -44,6 +46,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
+
     class Meta:
         fields = '__all__'
         model = Category
@@ -62,6 +65,7 @@ class GenreTitleSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+
     username = serializers.CharField(
         required=True,
         max_length=150,
@@ -123,3 +127,4 @@ class TokenSerializer(serializers.Serializer):
             'username',
             'confirmation_code'
         )
+
