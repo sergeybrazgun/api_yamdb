@@ -140,12 +140,6 @@ class Title(models.Model):
 
 class Review(models.Model):
     '''Модель отзывов.'''
-    author = models.ForeignKey(
-        User,
-        related_name='author_review',
-        on_delete=models.CASCADE,
-        verbose_name='Автор отзыва',
-    )
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
@@ -153,8 +147,15 @@ class Review(models.Model):
         verbose_name='Оцениваемое произведение',
     )
     text = models.TextField('Текст отзыва')
+    author = models.ForeignKey(
+        User,
+        related_name='author_review',
+        on_delete=models.CASCADE,
+        verbose_name='Автор отзыва',
+    )
+
     pub_date = models.DateTimeField(
-        'Дата добавления', auto_now_add=True, db_index=True
+        'Дата добавления', auto_now_add=True, db_index=True,blank=True
     )
     score = models.PositiveSmallIntegerField(
         'Оценка произведения',
@@ -213,3 +214,6 @@ class GenreTitle(models.Model):
     class Meta:
         verbose_name = 'Связь Жанров и Произведений'
         verbose_name_plural = 'Связь Жанров и Произведений'
+
+class ReviewImport(models.Model):
+    csv_file = models.FileField(upload_to='uploads/')
