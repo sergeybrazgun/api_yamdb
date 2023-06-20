@@ -8,6 +8,7 @@ from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.filters import SearchFilter
+from rest_framework import filters
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
@@ -176,5 +177,6 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 class GenreTitleViewSet(viewsets.ModelViewSet):
     queryset = GenreTitle.objects.all()
+    
     serializer_class = GenreTitleSerializer
 
