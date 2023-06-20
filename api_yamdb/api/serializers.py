@@ -97,6 +97,7 @@ class UserSerializer(serializers.ModelSerializer):
         required=True,
         max_length=150,
         validators=[validate_username,UniqueValidator(queryset=User.objects.all())])
+    #НАДО ЧТО-ТО СЮДА ДОБАВИТЬ
     class Meta:
         fields = (
             'username',
