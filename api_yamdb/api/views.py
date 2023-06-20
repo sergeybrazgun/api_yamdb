@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.pagination import LimitOffsetPagination
 
+from rest_framework import mixins
 from .permissions import IsAuthorOrModeratorOrAdminOrReadOnly, AdminOnly, IsAdminOrReadOnly
 from rest_framework import viewsets, permissions, status, generics
 from rest_framework.response import Response
@@ -15,13 +16,14 @@ from django.contrib.auth.tokens import default_token_generator
 from rest_framework.exceptions import ParseError
 from django.db.models import Avg
 from reviews.models import Category, Genre, GenreTitle, Title, User, Review
+from django_filters.rest_framework import DjangoFilterBackend
 
 from .serializers import (CategorySerializer, GenreSerializer,
                           GenreTitleSerializer, ReadOnlyTitleSerializer, TitleSerializer, ReviewSerializer,
                           CommentSerializer, UserSerializer,
                           CurrentUserSerializer, SignUpSerializer, TokenSerializer)
 from rest_framework_simplejwt.tokens import AccessToken
-
+from .filters import TitlesFilter
 
 class UserViewSet(viewsets.ModelViewSet):
     lookup_field = 'username'
@@ -154,7 +156,10 @@ class TitleViewSet(viewsets.ModelViewSet):
     ).order_by("name")
     serializer_class = TitleSerializer
     permission_classes = (IsAdminOrReadOnly,)
-    filter_backends = (filters.SearchFilter,)
+    # filter_backends = (filters.SearchFilter,)
+    filter_backends = (DjangoFilterBackend,)
+    
+    filterset_class = TitlesFilter
 
     def get_serializer_class(self):
         if self.action in ("retrieve", "list"):
@@ -162,7 +167,9 @@ class TitleViewSet(viewsets.ModelViewSet):
         return TitleSerializer
 
 
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreViewSet(mixins.CreateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,mixins.ListModelMixin,):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     filter_backends = (filters.SearchFilter,)
@@ -171,7 +178,9 @@ class GenreViewSet(viewsets.ModelViewSet):
     lookup_field = 'slug'
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(mixins.CreateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,mixins.ListModelMixin,):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     filter_backends = (filters.SearchFilter,)
