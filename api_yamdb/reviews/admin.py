@@ -83,10 +83,6 @@ class GenreTitleResource(resources.ModelResource):
 class GenreTitleAdmin(ImportExportModelAdmin):
     resource_classes = [GenreTitleResource]
 
-
-
-
-
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Genre, GenreAdmin)
 admin.site.register(Title, TitleAdmin)
@@ -94,7 +90,6 @@ admin.site.register(GenreTitle, GenreTitleAdmin)
 admin.site.register(User, UserAdmin)
 admin.site.register(Comments,)
 # admin.site.register(Review, )
-
 
 # обслуживание импорта
 import csv
@@ -105,16 +100,18 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.contrib import messages
 
+
 # отображает панель для модели BookImport
 @admin.register(ReviewImport)
 class ReviewImportAdmin(admin.ModelAdmin):
     list_display = ('csv_file',)
 
+
 # отображает панель для модели Review и метод для импорта
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ('title', 'author', 'text','pub_date', 'score',)
-    
+    list_display = ('title', 'author', 'text', 'pub_date', 'score')
+
     # даем django(urlpatterns) знать
     # о существовании страницы с формой
     # иначе будет ошибка
@@ -133,9 +130,11 @@ class ReviewAdmin(admin.ModelAdmin):
                 # сохраняем загруженный файл и делаем запись в базу
                 form_object = form.save()
                 # обработка csv файла
-                with form_object.csv_file.open('r',encoding='utf8') as csv_file:
+                with form_object.csv_file.open('r', encoding='utf8') \
+                        as csv_file:
                     rows = csv.reader(csv_file, delimiter=',')
-                    if next(rows) != ['title', 'author', 'text','pub_date', 'score',]:
+                    if next(rows) != ['title', 'author',
+                                      'text', 'pub_date', 'score']:
                         # обновляем страницу пользователя
                         # с информацией о какой-то ошибке
                         messages.warning(request, 'Неверные заголовки у файла')

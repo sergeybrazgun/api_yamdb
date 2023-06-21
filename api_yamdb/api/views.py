@@ -1,29 +1,34 @@
 from django.shortcuts import get_object_or_404
-from rest_framework.pagination import LimitOffsetPagination
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib.auth.tokens import default_token_generator
+from django.db.models import Avg
+from django.db import IntegrityError
+from django.core.exceptions import ValidationError
 
-from rest_framework import mixins
-from .permissions import IsAuthorOrModeratorOrAdminOrReadOnly, AdminOnly, IsAdminOrReadOnly
-from rest_framework import viewsets, permissions, status, generics
+from rest_framework import (mixins, viewsets, permissions,
+                            status, generics, filters)
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.filters import SearchFilter
-from rest_framework import filters
-from django.core.mail import send_mail
-from django.conf import settings
-from django.contrib.auth.tokens import default_token_generator
 from rest_framework.exceptions import ParseError
-from django.db.models import Avg
-from reviews.models import Category, Genre, GenreTitle, Title, User, Review
+
+from reviews.models import (Category, Genre, GenreTitle,
+                            Title, User, Review)
+
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .serializers import (CategorySerializer, GenreSerializer,
-                          GenreTitleSerializer, ReadOnlyTitleSerializer, TitleSerializer, ReviewSerializer,
-                          CommentSerializer, UserSerializer,
-                          CurrentUserSerializer, SignUpSerializer, TokenSerializer)
-from rest_framework_simplejwt.tokens import AccessToken
+from .permissions import (IsAuthorOrModeratorOrAdminOrReadOnly,
+                          AdminOnly, IsAdminOrReadOnly)
+from .serializers import (ReviewSerializer, CommentSerializer,
+                          CategorySerializer, TitleSerializer, GenreSerializer,
+                          ReadOnlyTitleSerializer, GenreTitleSerializer,
+                          UserSerializer, CurrentUserSerializer,
+                          SignUpSerializer, TokenSerializer)
 from .filters import TitlesFilter
+
 
 class UserViewSet(viewsets.ModelViewSet):
     lookup_field = 'username'
@@ -64,12 +69,22 @@ class SignUpView(APIView):
     def post(self, request):
         serializer = SignUpSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        username = serializer.data.get('username')
         email = serializer.data.get('email')
-        user, created = User.objects.get_or_create(
-            username=username,
-            email=email
-        )
+        try:
+            user, created = User.objects.get_or_create(
+                username=serializer.validated_data.get('username'),
+                email=serializer.validated_data.get('email')
+            )
+        except IntegrityError:
+            return Response(
+                {"error": "User with this email already exists."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except ValidationError as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         confirmation_code = default_token_generator.make_token(user)
         send_mail(
             'Код подтверждения',
@@ -98,7 +113,6 @@ class TokenObtainView(generics.CreateAPIView):
             {'message': 'Неверный код подтверждения.'},
             status=status.HTTP_400_BAD_REQUEST
         )
-
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -158,7 +172,6 @@ class TitleViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     # filter_backends = (filters.SearchFilter,)
     filter_backends = (DjangoFilterBackend,)
-    
     filterset_class = TitlesFilter
 
     def get_serializer_class(self):
@@ -168,8 +181,9 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 
 class GenreViewSet(mixins.CreateModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.GenericViewSet,mixins.ListModelMixin,):
+                   mixins.DestroyModelMixin,
+                   viewsets.GenericViewSet,
+                   mixins.ListModelMixin,):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     filter_backends = (filters.SearchFilter,)
@@ -179,8 +193,9 @@ class GenreViewSet(mixins.CreateModelMixin,
 
 
 class CategoryViewSet(mixins.CreateModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.GenericViewSet,mixins.ListModelMixin,):
+                      mixins.DestroyModelMixin,
+                      viewsets.GenericViewSet,
+                      mixins.ListModelMixin,):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     filter_backends = (filters.SearchFilter,)
@@ -191,6 +206,5 @@ class CategoryViewSet(mixins.CreateModelMixin,
 
 class GenreTitleViewSet(viewsets.ModelViewSet):
     queryset = GenreTitle.objects.all()
-    
-    serializer_class = GenreTitleSerializer
 
+    serializer_class = GenreTitleSerializer

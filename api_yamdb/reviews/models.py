@@ -109,8 +109,11 @@ class Title(models.Model):
     year = models.IntegerField('год выхода',
                                validators=[
                                    MinValueValidator(
-                                       1900, message='До 1900ого года никто ничего не придумал'),
-                                   MaxValueValidator(2023, message='Не надо добавлять произведения из будущего')],)
+                                       1900,
+                                       message='До 1900ого года никто ничего не придумал'),
+                                   MaxValueValidator(
+                                       2023,
+                                       message='Не надо добавлять произведения из будущего')],)
     category = models.ForeignKey(Category,
                                  related_name='titles',
                                  null=True,
@@ -155,7 +158,7 @@ class Review(models.Model):
     )
 
     pub_date = models.DateTimeField(
-        'Дата добавления', auto_now_add=True, db_index=True,blank=True
+        'Дата добавления', auto_now_add=True, db_index=True, blank=True
     )
     score = models.PositiveSmallIntegerField(
         'Оценка произведения',
@@ -214,6 +217,7 @@ class GenreTitle(models.Model):
     class Meta:
         verbose_name = 'Связь Жанров и Произведений'
         verbose_name_plural = 'Связь Жанров и Произведений'
+
 
 class ReviewImport(models.Model):
     csv_file = models.FileField(upload_to='uploads/')

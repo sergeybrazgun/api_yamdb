@@ -55,18 +55,16 @@ class TitleSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = ('name','slug',)
+        fields = ('name', 'slug',)
         model = Category
         lookup_field = 'slug'
-        
 
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ('name','slug',)
+        fields = ('name', 'slug',)
         model = Genre
         lookup_field = 'slug'
-
 
 
 class ReadOnlyTitleSerializer(serializers.ModelSerializer):
@@ -83,8 +81,6 @@ class ReadOnlyTitleSerializer(serializers.ModelSerializer):
         )
 
 
-
-
 class GenreTitleSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
@@ -96,8 +92,9 @@ class UserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(
         required=True,
         max_length=150,
-        validators=[validate_username,UniqueValidator(queryset=User.objects.all())])
-    #НАДО ЧТО-ТО СЮДА ДОБАВИТЬ
+        validators=[validate_username,
+                    UniqueValidator(queryset=User.objects.all())])
+
     class Meta:
         fields = (
             'username',
@@ -154,4 +151,3 @@ class TokenSerializer(serializers.Serializer):
             'username',
             'confirmation_code'
         )
-
