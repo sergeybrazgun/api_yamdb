@@ -24,7 +24,8 @@ INSTALLED_APPS = [
     'reviews.apps.ReviewsConfig',
     'api.apps.ApiConfig',
     'rest_framework',
-    'import_export',  
+    'import_export',
+    'django_filters',
 ]
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
@@ -32,6 +33,8 @@ REST_FRAMEWORK = {
 } 
 
 STATIC_ROOT = BASE_DIR / 'static' / 'data'
+
+
 
 AUTH_USER_MODEL = 'reviews.User'
 
@@ -100,13 +103,13 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
+# DATETIME_FORMAT = "%Y-%m-%d T%H:%M:%S%z"
 
 USE_I18N = True
 
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 

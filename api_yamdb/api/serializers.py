@@ -3,7 +3,7 @@ from rest_framework import serializers
 from reviews.models import (Category, Genre, GenreTitle,
                             Title, User, Review, Comments)
 from reviews.validators import validate_username
-
+from rest_framework.validators import UniqueValidator
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -40,22 +40,45 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
+    genre = serializers.SlugRelatedField(
+        slug_field='slug', many=True, queryset=Genre.objects.all()
+    )
+    category = serializers.SlugRelatedField(
+        slug_field='slug', queryset=Category.objects.all()
+    )
+
     class Meta:
-        fields = '__all__'
         model = Title
+        fields = '__all__'
 
 
 class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = ('name','slug',)
+        fields = ('name', 'slug',)
         model = Category
+        lookup_field = 'slug'
 
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ('name','slug',)
+        fields = ('name', 'slug',)
         model = Genre
+        lookup_field = 'slug'
+
+
+class ReadOnlyTitleSerializer(serializers.ModelSerializer):
+    rating = serializers.IntegerField(
+        source='review_title__score__avg', read_only=True
+    )
+    genre = GenreSerializer(many=True)
+    category = CategorySerializer()
+
+    class Meta:
+        model = Title
+        fields = (
+            'id', 'name', 'year', 'rating', 'description', 'genre', 'category'
+        )
 
 
 class GenreTitleSerializer(serializers.ModelSerializer):
@@ -69,7 +92,8 @@ class UserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(
         required=True,
         max_length=150,
-        validators=[validate_username, ])
+        validators=[validate_username,
+                    UniqueValidator(queryset=User.objects.all())])
 
     class Meta:
         fields = (
@@ -127,4 +151,3 @@ class TokenSerializer(serializers.Serializer):
             'username',
             'confirmation_code'
         )
-
