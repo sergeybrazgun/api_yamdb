@@ -14,6 +14,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.filters import SearchFilter
 from rest_framework.exceptions import ParseError
+from rest_framework_simplejwt.tokens import AccessToken
 
 from reviews.models import (Category, Genre, GenreTitle,
                             Title, User, Review)

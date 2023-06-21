@@ -110,10 +110,12 @@ class Title(models.Model):
                                validators=[
                                    MinValueValidator(
                                        1900,
-                                       message='До 1900ого года никто ничего не придумал'),
+                                       message='До 1900ого'
+                                       'года никто ничего не придумал'),
                                    MaxValueValidator(
                                        2023,
-                                       message='Не надо добавлять произведения из будущего')],)
+                                       message='Не надо'
+                                       'добавлять произведения из будущего')],)
     category = models.ForeignKey(Category,
                                  related_name='titles',
                                  null=True,
