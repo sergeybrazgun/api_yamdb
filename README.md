@@ -1,7 +1,9 @@
 # Api_YaMDb
 в разработке проекта принимали участие:
-[Ксения Анемподистова](https://github.com/Brittmary)
-[Сергей Андреев](https://github.com/McCloudin21)
+[Ксения Анемподистова](https://github.com/Brittmary)  
+
+[Сергей Андреев](https://github.com/McCloudin21)  
+
 [Сергей Бразгун](https://github.com/sergeybrazgun/)
 
 ### Применены следующие технологии:
@@ -17,22 +19,26 @@ Pytest
 ```
 # Как запустить проект в dev-режиме
 ### Клонировать репозиторий и перейти в него в командной строке:
-`git clone https://github.com/sergeybrazgun/api_yamdb`
+`git clone https://github.com/sergeybrazgun/api_yamdb`  
+
 `cd api_yamdb`
 
 ### Создать и активировать виртуальное окружение
 для Linux или MacOS:
-`python3 -m venv venv`
+`python3 -m venv venv`  
+
 `source venv/bin/activate`
 
 для Windows:
-`python -m venv venv`
+`python -m venv venv`  
+
 `source venv/Script/activate`
 
 Установить зависимости из файла requirements.txt:
 `pip install -r requirements.txt`
 Перейти в папку api_yamdb, и выполнить миграции:
-`cd api_yamdb`
+`cd api_yamdb`  
+
 `python3 manage.py migrate`
 Запустить проект:
 `python3 manage.py runserver`
