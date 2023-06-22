@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from reviews.models import (Category, Genre, GenreTitle,
                             Title, User, Review, Comments)
-from reviews.validators import validate_username
+from users.validators import validate_username
 from rest_framework.validators import UniqueValidator
 
 
