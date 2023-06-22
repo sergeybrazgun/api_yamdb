@@ -1,9 +1,10 @@
-from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
-from reviews.validators import validate_username
+from django.db import models
 
+from .abstract_models import PubDateAbstractModel
+from reviews.validators import validate_username
 
 MAX_LENGTH = 150
 MAX_LENGTH_2 = 256
@@ -159,7 +160,7 @@ class Title(models.Model):
         ordering = ['name']
 
 
-class Review(models.Model):
+class Review(PubDateAbstractModel):
     """Модель отзывов."""
     title = models.ForeignKey(
         Title,
@@ -173,9 +174,6 @@ class Review(models.Model):
         related_name='author_review',
         on_delete=models.CASCADE,
         verbose_name='Автор отзыва',
-    )
-    pub_date = models.DateTimeField(
-        'Дата добавления', auto_now_add=True, db_index=True, blank=True
     )
     score = models.PositiveSmallIntegerField(
         'Оценка произведения',
@@ -199,7 +197,7 @@ class Review(models.Model):
         return self.text[:ON_PAGE]
 
 
-class Comments(models.Model):
+class Comments(PubDateAbstractModel):
     """Модель комментариев."""
     author = models.ForeignKey(
         User,
@@ -213,9 +211,6 @@ class Comments(models.Model):
         verbose_name='Комментируемый отзыв'
     )
     text = models.TextField('Текст комметария')
-    pub_date = models.DateTimeField(
-        'Дата добавления', auto_now_add=True, db_index=True
-    )
 
     class Meta:
         ordering = ['-pub_date']
