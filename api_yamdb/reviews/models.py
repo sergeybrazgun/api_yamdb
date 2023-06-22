@@ -219,7 +219,3 @@ class GenreTitle(models.Model):
     class Meta:
         verbose_name = 'Связь Жанров и Произведений'
         verbose_name_plural = 'Связь Жанров и Произведений'
-
-
-class ReviewImport(models.Model):
-    csv_file = models.FileField(upload_to='uploads/')
