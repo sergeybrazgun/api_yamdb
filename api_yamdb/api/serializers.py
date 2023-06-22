@@ -121,7 +121,7 @@ class CurrentUserSerializer(serializers.ModelSerializer):
 class SignUpSerializer(serializers.ModelSerializer):
     username = serializers.CharField(
         max_length=150,
-        validators=[validate_username,]
+        validators=[validate_username, ]
     )
     email = serializers.EmailField(max_length=254,)
 
