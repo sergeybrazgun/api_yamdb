@@ -26,6 +26,14 @@ class ReviewSerializer(serializers.ModelSerializer):
                 'Нельзя оставить два отзыва на одно произведение.')
         return data
 
+    def validated_unique_review(self, attrs):
+        title = attrs['title']
+        author = self.context['request'].user
+
+        if Review.objects.filter(title=title, author=author).exists():
+            raise serializers.ValidationError("Отзыв существует уже")
+        return attrs
+
 
 class CommentSerializer(serializers.ModelSerializer):
     '''Сериалайзер комментариев.'''
@@ -107,7 +115,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
 
 
-class CurrentUserSerializer(serializers.ModelSerializer):
+class UserMeSerializer(serializers.ModelSerializer):
     role = serializers.ReadOnlyField()
 
     class Meta:
@@ -124,6 +132,12 @@ class SignUpSerializer(serializers.ModelSerializer):
         validators=[validate_username,]
     )
     email = serializers.EmailField(max_length=254,)
+
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError(
+                "User with this email already exists.")
+        return value
 
     def validate_username(self, value):
         if value == 'me':
