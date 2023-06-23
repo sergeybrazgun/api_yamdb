@@ -1,85 +1,15 @@
-from django.db import models
 from django.conf import settings
-from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
-from reviews.validators import validate_username
+from django.db import models
+
+from .abstract_models import PubDateAbstractModel
+from users.models import User
 
 
 MAX_LENGTH = 150
 MAX_LENGTH_2 = 256
 MAX_LENGTH_3 = 50
 ON_PAGE = 10
-
-
-class SampleModel(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,
-                             on_delete=models.CASCADE)
-
-
-class User(AbstractUser):
-    """Модель пользователя"""
-    USER = 'user'
-    ADMIN = 'admin'
-    MODERATOR = 'moderator'
-
-    ROLE_CHOICES = (
-        (USER, 'Пользователь'),
-        (ADMIN, 'Админ'),
-        (MODERATOR, 'Модератор'),
-    )
-
-    username = models.CharField(
-        validators=[validate_username],
-        max_length=MAX_LENGTH,
-        unique=True,
-        blank=False,
-        null=False
-    )
-    email = models.EmailField(
-        max_length=254,
-        unique=True,
-        blank=False,
-        null=False
-    )
-    role = models.CharField(
-        max_length=20,
-        choices=ROLE_CHOICES,
-        default=USER,
-        blank=True
-    )
-    bio = models.TextField(
-        blank=True,
-    )
-    first_name = models.CharField(
-        max_length=MAX_LENGTH,
-        blank=True
-    )
-    last_name = models.CharField(
-        max_length=MAX_LENGTH,
-        blank=True
-    )
-    confirmation_code = models.CharField(
-        max_length=255,
-        null=True,
-        blank=False,
-        default='XXXX'
-    )
-
-    class Meta:
-        ordering = ('id',)
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
-
-    @property
-    def is_moderator(self):
-        return self.role == self.MODERATOR
-
-    @property
-    def is_admin(self):
-        return self.role == self.ADMIN or self.is_superuser
-
-    def __str__(self):
-        return self.username
 
 
 class Category(models.Model):
@@ -159,7 +89,7 @@ class Title(models.Model):
         ordering = ['name']
 
 
-class Review(models.Model):
+class Review(PubDateAbstractModel):
     """Модель отзывов."""
     title = models.ForeignKey(
         Title,
@@ -173,9 +103,6 @@ class Review(models.Model):
         related_name='author_review',
         on_delete=models.CASCADE,
         verbose_name='Автор отзыва',
-    )
-    pub_date = models.DateTimeField(
-        'Дата добавления', auto_now_add=True, db_index=True, blank=True
     )
     score = models.PositiveSmallIntegerField(
         'Оценка произведения',
@@ -199,7 +126,7 @@ class Review(models.Model):
         return self.text[:ON_PAGE]
 
 
-class Comments(models.Model):
+class Comments(PubDateAbstractModel):
     """Модель комментариев."""
     author = models.ForeignKey(
         User,
@@ -213,9 +140,6 @@ class Comments(models.Model):
         verbose_name='Комментируемый отзыв'
     )
     text = models.TextField('Текст комметария')
-    pub_date = models.DateTimeField(
-        'Дата добавления', auto_now_add=True, db_index=True
-    )
 
     class Meta:
         ordering = ['-pub_date']
@@ -225,11 +149,11 @@ class Comments(models.Model):
 
 
 class GenreTitle(models.Model):
-    title_id = models.ForeignKey(Title, on_delete=models.CASCADE)
-    genre_id = models.ForeignKey(Genre, on_delete=models.CASCADE)
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'{self.title_id} ({self.genre_id})'
+        return f'{self.title} ({self.genre})'
 
     class Meta:
         verbose_name = 'Связь Жанров и Произведений'

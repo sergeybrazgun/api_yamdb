@@ -19,7 +19,7 @@ def get_reader(file_name: str):
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        csv_reader = get_reader('category.csv')
+        # csv_reader = get_reader('category.csv')
         next(csv_reader, None)
         for row in csv_reader:
             obj, created = Category.objects.get_or_create(
@@ -51,17 +51,6 @@ class Command(BaseCommand):
             )
         print('titles: импорт завершен')
 
-        csv_reader = get_reader('genre_title.csv')
-        next(csv_reader, None)
-        for row in csv_reader:
-            obj_genre = get_object_or_404(Genre, id=row[2])
-            obj_title = get_object_or_404(Title, id=row[1])
-            obj, created = GenreTitle.objects.get_or_create(
-                id=row[0],
-                genre_id=obj_genre,
-                title_id=obj_title
-            )
-        print('genre_titles: импорт завершен')
 
         csv_reader = get_reader('users.csv')
         next(csv_reader, None)
@@ -105,3 +94,15 @@ class Command(BaseCommand):
                 pub_date=row[4]
             )
         print('comments: импорт завершен')
+	
+        csv_reader = get_reader('genre_title.csv')
+        next(csv_reader, None)
+        for row in csv_reader:
+            obj_genre = get_object_or_404(Genre, id=row[2])
+            obj_title = get_object_or_404(Title, id=row[1])
+            obj, created = GenreTitle.objects.get_or_create(
+                id=row[0],
+                genre=obj_genre,
+                title=obj_title
+            )
+        print('genre_titles: импорт завершен')
