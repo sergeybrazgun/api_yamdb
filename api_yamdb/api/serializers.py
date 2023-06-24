@@ -126,25 +126,24 @@ class UserMeSerializer(serializers.ModelSerializer):
         )
 
 
-class SignUpSerializer(serializers.ModelSerializer):
+class SignUpSerializer(serializers.Serializer):
     username = serializers.CharField(
+        required=True,
         max_length=150,
         validators=[validate_username,]
     )
     email = serializers.EmailField(max_length=254,)
 
-    def validate_email(self, value):
-        if User.objects.filter(email=value).exists():
+    def validate(self, data):
+        if User.objects.filter(username=data['username'],
+                               email=data['email']).exists():
+            return data
+        if (User.objects.filter(username=data['username']).exists()
+                or User.objects.filter(email=data['email']).exists()):
             raise serializers.ValidationError(
-                "User with this email already exists.")
-        return value
-
-    def validate_username(self, value):
-        if value == 'me':
-            raise serializers.ValidationError(
-                'me нельзя использовать в качестве имени',
+                'Пользователь с такими данными уже существует!'
             )
-        return value
+        return data
 
     class Meta:
         model = User
