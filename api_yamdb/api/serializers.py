@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from reviews.models import (Category, Genre, GenreTitle,
                             Title, User, Review, Comments)
-from reviews.validators import validate_username
+from users.validators import validate_username
 from rest_framework.validators import UniqueValidator
 
 
@@ -25,6 +25,14 @@ class ReviewSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Нельзя оставить два отзыва на одно произведение.')
         return data
+
+    def validated_unique_review(self, attrs):
+        title = attrs['title']
+        author = self.context['request'].user
+
+        if Review.objects.filter(title=title, author=author).exists():
+            raise serializers.ValidationError("Отзыв существует уже")
+        return attrs
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -107,7 +115,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
 
 
-class CurrentUserSerializer(serializers.ModelSerializer):
+class UserMeSerializer(serializers.ModelSerializer):
     role = serializers.ReadOnlyField()
 
     class Meta:
@@ -118,19 +126,24 @@ class CurrentUserSerializer(serializers.ModelSerializer):
         )
 
 
-class SignUpSerializer(serializers.ModelSerializer):
+class SignUpSerializer(serializers.Serializer):
     username = serializers.CharField(
+        required=True,
         max_length=150,
         validators=[validate_username, ]
     )
     email = serializers.EmailField(max_length=254,)
 
-    def validate_username(self, value):
-        if value == 'me':
+    def validate(self, data):
+        if User.objects.filter(username=data['username'],
+                               email=data['email']).exists():
+            return data
+        if (User.objects.filter(username=data['username']).exists()
+                or User.objects.filter(email=data['email']).exists()):
             raise serializers.ValidationError(
-                'me нельзя использовать в качестве имени',
+                'Пользователь с такими данными уже существует!'
             )
-        return value
+        return data
 
     class Meta:
         model = User
