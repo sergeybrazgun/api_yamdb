@@ -3,8 +3,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.db.models import Avg
-from django.db import IntegrityError
-from django.core.exceptions import ValidationError
+
 
 from rest_framework import (mixins, viewsets, permissions,
                             status, generics, filters)
@@ -13,7 +12,6 @@ from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.filters import SearchFilter
-from rest_framework.exceptions import ParseError
 from rest_framework_simplejwt.tokens import AccessToken
 
 from reviews.models import (Category, Genre, GenreTitle,
@@ -26,9 +24,10 @@ from .permissions import (IsAuthorOrModeratorOrAdminOrReadOnly,
 from .serializers import (ReviewSerializer, CommentSerializer,
                           CategorySerializer, TitleSerializer, GenreSerializer,
                           ReadOnlyTitleSerializer, GenreTitleSerializer,
-                          UserSerializer, CurrentUserSerializer,
+                          UserSerializer, UserMeSerializer,
                           SignUpSerializer, TokenSerializer)
 from .filters import TitlesFilter
+from .mixins import ListCreateDestroyViewSet
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -49,7 +48,7 @@ class UserViewSet(viewsets.ModelViewSet):
     def users_profile(self, request):
 
         if request.method == 'PATCH':
-            serializer = CurrentUserSerializer(
+            serializer = UserMeSerializer(
                 self.request.user, data=request.data, partial=True
             )
             serializer.is_valid(raise_exception=True)
@@ -57,7 +56,7 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(
                 serializer.data, status=status.HTTP_200_OK
             )
-        serializer = CurrentUserSerializer(self.request.user)
+        serializer = UserMeSerializer(self.request.user)
         return Response(serializer.data)
 
 
@@ -71,21 +70,12 @@ class SignUpView(APIView):
         serializer = SignUpSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         email = serializer.data.get('email')
-        try:
-            user, created = User.objects.get_or_create(
-                username=serializer.validated_data.get('username'),
-                email=serializer.validated_data.get('email')
-            )
-        except IntegrityError:
-            return Response(
-                {"error": "User with this email already exists."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        except ValidationError as e:
-            return Response(
-                {"error": str(e)},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+
+        user, created = User.objects.get_or_create(
+            username=serializer.validated_data.get('username'),
+            email=serializer.validated_data.get('email')
+        )
+
         confirmation_code = default_token_generator.make_token(user)
         send_mail(
             'Код подтверждения',
@@ -124,19 +114,11 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
-        new_queryset = title.review_title.all()
-        return new_queryset
+        return title.review_title.all()
 
     def perform_create(self, serializer):
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
-        if Review.objects.filter(
-            title=title,
-            author=self.request.user
-        ).exists():
-            raise ParseError
-        serializer.save(
-            author=self.request.user, title=title
-        )
+        serializer.save(author=self.request.user, title=title)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -151,8 +133,7 @@ class CommentViewSet(viewsets.ModelViewSet):
             pk=self.kwargs.get('review_id'),
             title_id=self.kwargs.get('title_id'),
         )
-        new_queryset = review.comments.all()
-        return new_queryset
+        return review.comments.all()
 
     def perform_create(self, serializer):
         review = get_object_or_404(
@@ -171,7 +152,6 @@ class TitleViewSet(viewsets.ModelViewSet):
     ).order_by("name")
     serializer_class = TitleSerializer
     permission_classes = (IsAdminOrReadOnly,)
-    # filter_backends = (filters.SearchFilter,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitlesFilter
 
@@ -181,10 +161,7 @@ class TitleViewSet(viewsets.ModelViewSet):
         return TitleSerializer
 
 
-class GenreViewSet(mixins.CreateModelMixin,
-                   mixins.DestroyModelMixin,
-                   viewsets.GenericViewSet,
-                   mixins.ListModelMixin,):
+class GenreViewSet(ListCreateDestroyViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     filter_backends = (filters.SearchFilter,)
