@@ -5,6 +5,7 @@ from .validators import validate_username
 
 MAX_LENGTH = 150
 
+
 class User(AbstractUser):
     """Модель пользователя"""
     USER = 'user'

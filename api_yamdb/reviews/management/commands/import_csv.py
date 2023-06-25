@@ -19,7 +19,7 @@ def get_reader(file_name: str):
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        # csv_reader = get_reader('category.csv')
+        csv_reader = get_reader('category.csv')
         next(csv_reader, None)
         for row in csv_reader:
             obj, created = Category.objects.get_or_create(
@@ -50,7 +50,6 @@ class Command(BaseCommand):
                 category=obj_category
             )
         print('titles: импорт завершен')
-
 
         csv_reader = get_reader('users.csv')
         next(csv_reader, None)
@@ -94,7 +93,7 @@ class Command(BaseCommand):
                 pub_date=row[4]
             )
         print('comments: импорт завершен')
-	
+
         csv_reader = get_reader('genre_title.csv')
         next(csv_reader, None)
         for row in csv_reader:

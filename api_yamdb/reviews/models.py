@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
@@ -51,7 +50,8 @@ class Title(models.Model):
                                    MinValueValidator(
                                        1900,
                                        message='Не надо'
-                                       'добовлять произведения ранее 1900-го года'),
+                                       'добавлять произведения'
+                                       'ранее 1900-го года'),
                                    MaxValueValidator(
                                        2023,
                                        message='Не надо'
