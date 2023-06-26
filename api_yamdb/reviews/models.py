@@ -1,8 +1,9 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from .abstract_models import PubDateAbstractModel
 from users.models import User
+
+from .abstract_models import PubDateAbstractModel
 
 
 MAX_LENGTH = 150
