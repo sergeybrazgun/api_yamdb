@@ -63,7 +63,7 @@ class Title(models.Model):
                                  verbose_name='категория',
                                  on_delete=models.SET_NULL)
     genre = models.ManyToManyField(
-        Genre, through='GenreTitle', verbose_name='жанр')
+        Genre, verbose_name='жанр')
     rating = models.PositiveSmallIntegerField(
         verbose_name='Рейтинг',
         null=True,
@@ -149,13 +149,13 @@ class Comments(PubDateAbstractModel):
         return self.text[:ON_PAGE]
 
 
-class GenreTitle(models.Model):
-    title = models.ForeignKey(Title, on_delete=models.CASCADE)
-    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+# class GenreTitle(models.Model):
+#     title = models.ForeignKey(Title, on_delete=models.CASCADE)
+#     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
 
-    def __str__(self):
-        return f'{self.title} ({self.genre})'
+#     def __str__(self):
+#         return f'{self.title} ({self.genre})'
 
-    class Meta:
-        verbose_name = 'Связь Жанров и Произведений'
-        verbose_name_plural = 'Связь Жанров и Произведений'
+#     class Meta:
+#         verbose_name = 'Связь Жанров и Произведений'
+#         verbose_name_plural = 'Связь Жанров и Произведений'

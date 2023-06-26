@@ -1,37 +1,37 @@
-from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import (mixins, viewsets, permissions,
                             status, generics, filters)
-from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
 from rest_framework.filters import SearchFilter
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
 
-from reviews.models import (Category, Genre, GenreTitle,
-                            Title, User, Review)
-
-from .permissions import (IsAuthorOrModeratorOrAdminOrReadOnly,
-                          AdminOnly, IsAdminOrReadOnly)
-from .serializers import (ReviewSerializer, CommentSerializer,
-                          CategorySerializer, TitleSerializer, GenreSerializer,
-                          ReadOnlyTitleSerializer, GenreTitleSerializer,
-                          UserSerializer, UserMeSerializer,
-                          SignUpSerializer, TokenSerializer)
 from .filters import TitlesFilter
 from .mixins import ListCreateDestroyViewSet
+
+from .permissions import (IsAuthorOrModeratorOrAdminOrReadOnly,
+                          IsAuthenticated, AdminOnly, IsAdminOrReadOnly)
+from reviews.models import (Category, Genre,
+                            Title, User, Review)
+from .serializers import (ReviewSerializer, CommentSerializer,
+                          CategorySerializer, TitleSerializer, GenreSerializer,
+                          ReadOnlyTitleSerializer,
+                          UserSerializer, UserMeSerializer,
+                          SignUpSerializer, TokenSerializer)
 
 
 class UserViewSet(viewsets.ModelViewSet):
     lookup_field = 'username'
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (AdminOnly,)
+    permission_classes = (IsAuthenticated, AdminOnly)
     search_fields = ('username',)
     filter_backends = (SearchFilter,)
     http_method_names = ['get', 'post', 'patch', 'delete']
@@ -174,12 +174,6 @@ class CategoryViewSet(mixins.CreateModelMixin,
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     filter_backends = (filters.SearchFilter,)
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (IsAdminOrReadOnly, )
     search_fields = ('name',)
     lookup_field = 'slug'
-
-
-class GenreTitleViewSet(viewsets.ModelViewSet):
-    queryset = GenreTitle.objects.all()
-
-    serializer_class = GenreTitleSerializer
