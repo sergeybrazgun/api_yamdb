@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from reviews.models import (Category, Genre, GenreTitle,
+from reviews.models import (Category, Genre,
                             Title, User, Review, Comments)
 from users.validators import validate_username
 
@@ -89,12 +89,6 @@ class ReadOnlyTitleSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'name', 'year', 'rating', 'description', 'genre', 'category'
         )
-
-
-class GenreTitleSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = '__all__'
-        model = GenreTitle
 
 
 class UserSerializer(serializers.ModelSerializer):

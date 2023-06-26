@@ -18,11 +18,11 @@ from .mixins import ListCreateDestroyViewSet
 
 from .permissions import (IsAuthorOrModeratorOrAdminOrReadOnly,
                           IsAuthenticated, AdminOnly, IsAdminOrReadOnly)
-from reviews.models import (Category, Genre, GenreTitle,
+from reviews.models import (Category, Genre,
                             Title, User, Review)
 from .serializers import (ReviewSerializer, CommentSerializer,
                           CategorySerializer, TitleSerializer, GenreSerializer,
-                          ReadOnlyTitleSerializer, GenreTitleSerializer,
+                          ReadOnlyTitleSerializer,
                           UserSerializer, UserMeSerializer,
                           SignUpSerializer, TokenSerializer)
 
@@ -177,9 +177,3 @@ class CategoryViewSet(mixins.CreateModelMixin,
     permission_classes = (IsAdminOrReadOnly, )
     search_fields = ('name',)
     lookup_field = 'slug'
-
-
-class GenreTitleViewSet(viewsets.ModelViewSet):
-    queryset = GenreTitle.objects.all()
-
-    serializer_class = GenreTitleSerializer
