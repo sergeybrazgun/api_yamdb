@@ -20,7 +20,7 @@ from reviews.models import (Category, Genre, GenreTitle,
 from django_filters.rest_framework import DjangoFilterBackend
 
 from .permissions import (IsAuthorOrModeratorOrAdminOrReadOnly,
-                          AdminOnly, IsAdminOrReadOnly)
+                          IsAuthenticated, AdminOnly, IsAdminOrReadOnly)
 from .serializers import (ReviewSerializer, CommentSerializer,
                           CategorySerializer, TitleSerializer, GenreSerializer,
                           ReadOnlyTitleSerializer, GenreTitleSerializer,
@@ -34,7 +34,7 @@ class UserViewSet(viewsets.ModelViewSet):
     lookup_field = 'username'
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (AdminOnly,)
+    permission_classes = (IsAuthenticated, AdminOnly)
     search_fields = ('username',)
     filter_backends = (SearchFilter,)
     http_method_names = ['get', 'post', 'patch', 'delete']
@@ -177,7 +177,7 @@ class CategoryViewSet(mixins.CreateModelMixin,
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     filter_backends = (filters.SearchFilter,)
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (IsAdminOrReadOnly, )
     search_fields = ('name',)
     lookup_field = 'slug'
 
