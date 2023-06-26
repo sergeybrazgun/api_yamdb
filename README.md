@@ -32,17 +32,16 @@ Pytest
 для Windows:
 `python -m venv venv`  
 
-`source venv/Script/activate`
+`source venv/Scripts/activate`
 
 Установить зависимости из файла requirements.txt:
 `pip install -r requirements.txt`
 Перейти в папку api_yamdb, и выполнить миграции:
 `cd api_yamdb`  
 
-`python3 manage.py migrate`
+`python manage.py migrate`
 Запустить проект:
-`python3 manage.py runserver`
-* в Windows вместо команды `python3` использовать `python`
+`python manage.py runserver`
 
 после запуска проекта, по адресу http://127.0.0.1:8000/redoc/ будет доступна документация для API Yatube.В ней описаны возможные запросы к API и структура ожидаемых ответов. 
 
