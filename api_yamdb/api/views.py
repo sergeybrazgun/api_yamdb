@@ -43,7 +43,7 @@ class UserViewSet(viewsets.ModelViewSet):
         methods=['GET', 'PATCH'],
         detail=False,
         url_path='me',
-        permission_classes=[permissions.IsAuthenticated],
+        permission_classes=[IsAuthenticated],
     )
     def users_profile(self, request):
 
