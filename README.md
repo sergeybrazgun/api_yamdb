@@ -7,15 +7,15 @@
 [Сергей Бразгун](https://github.com/sergeybrazgun/)
 
 ### Применены следующие технологии:
-Python 3.9
-requests
-Django
-djangorestframework
-PyJWT
-djangorestframework-simplejwt
-Python-dotenv
-SQLite
-Pytest
+- Python 3.9
+- requests
+- Django
+- djangorestframework
+- PyJWT
+- djangorestframework-simplejwt
+- Python-dotenv
+- SQLite
+- Pytest
 
 # Как запустить проект в dev-режиме
 ### Клонировать репозиторий и перейти в него в командной строке:
@@ -32,7 +32,7 @@ Pytest
 для Windows:
 `python -m venv venv`  
 
-`source venv/Scripts/activate`
+`venv/Scripts/activate.bat`
 
 Установить зависимости из файла requirements.txt:
 `pip install -r requirements.txt`

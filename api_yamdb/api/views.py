@@ -18,13 +18,13 @@ from .mixins import ListCreateDestroyViewSet
 
 from .permissions import (IsAuthorOrModeratorOrAdminOrReadOnly,
                           IsAuthenticated, AdminOnly, IsAdminOrReadOnly)
-from reviews.models import (Category, Genre,
-                            Title, User, Review)
 from .serializers import (ReviewSerializer, CommentSerializer,
                           CategorySerializer, TitleSerializer, GenreSerializer,
                           ReadOnlyTitleSerializer,
                           UserSerializer, UserMeSerializer,
                           SignUpSerializer, TokenSerializer)
+
+from reviews.models import (Category, Genre, Review, Title, User)
 
 
 class UserViewSet(viewsets.ModelViewSet):
