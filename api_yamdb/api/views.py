@@ -5,12 +5,13 @@ from django.contrib.auth.tokens import default_token_generator
 from django.db.models import Avg
 
 
-from rest_framework import (mixins, viewsets, permissions,
+from rest_framework import (mixins, viewsets,
                             status, generics, filters)
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import (AllowAny, IsAuthenticatedOrReadOnly,
+                                        IsAuthenticated)
 from rest_framework.filters import SearchFilter
 from rest_framework_simplejwt.tokens import AccessToken
 
@@ -20,7 +21,7 @@ from reviews.models import (Category, Genre, GenreTitle,
 from django_filters.rest_framework import DjangoFilterBackend
 
 from .permissions import (IsAuthorOrModeratorOrAdminOrReadOnly,
-                          IsAuthenticated, AdminOnly, IsAdminOrReadOnly)
+                          AdminOnly, IsAdminOrReadOnly)
 from .serializers import (ReviewSerializer, CommentSerializer,
                           CategorySerializer, TitleSerializer, GenreSerializer,
                           ReadOnlyTitleSerializer, GenreTitleSerializer,
@@ -151,7 +152,7 @@ class TitleViewSet(viewsets.ModelViewSet):
         Avg("review_title__score")
     ).order_by("name")
     serializer_class = TitleSerializer
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrReadOnly, IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitlesFilter
 
@@ -165,7 +166,7 @@ class GenreViewSet(ListCreateDestroyViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     filter_backends = (filters.SearchFilter,)
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrReadOnly, IsAdminOrReadOnly,)
     search_fields = ('name',)
     lookup_field = 'slug'
 
@@ -177,7 +178,7 @@ class CategoryViewSet(mixins.CreateModelMixin,
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     filter_backends = (filters.SearchFilter,)
-    permission_classes = (IsAdminOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly, IsAdminOrReadOnly, )
     search_fields = ('name',)
     lookup_field = 'slug'
 
