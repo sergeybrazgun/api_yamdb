@@ -7,16 +7,16 @@
 [Сергей Бразгун](https://github.com/sergeybrazgun/)
 
 ### Применены следующие технологии:
-```
-Python 3.7
-requests==2.26.0
-Django==3.2
-djangorestframework==3.12.4
-PyJWT==2.1.0
-djangorestframework-simplejwt==5.2.2
+Python 3.9
+requests
+Django
+djangorestframework
+PyJWT
+djangorestframework-simplejwt
+Python-dotenv
 SQLite
 Pytest
-```
+
 # Как запустить проект в dev-режиме
 ### Клонировать репозиторий и перейти в него в командной строке:
 `git clone https://github.com/sergeybrazgun/api_yamdb`  
@@ -32,17 +32,16 @@ Pytest
 для Windows:
 `python -m venv venv`  
 
-`source venv/Script/activate`
+`source venv/Scripts/activate`
 
 Установить зависимости из файла requirements.txt:
 `pip install -r requirements.txt`
 Перейти в папку api_yamdb, и выполнить миграции:
 `cd api_yamdb`  
 
-`python3 manage.py migrate`
+`python manage.py migrate`
 Запустить проект:
-`python3 manage.py runserver`
-* в Windows вместо команды `python3` использовать `python`
+`python manage.py runserver`
 
 после запуска проекта, по адресу http://127.0.0.1:8000/redoc/ будет доступна документация для API Yatube.В ней описаны возможные запросы к API и структура ожидаемых ответов. 
 

@@ -1,13 +1,13 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 
-from reviews.models import (Category, Genre, GenreTitle,
+from reviews.models import (Category, Genre,
                             Title, User, Review, Comments)
 from users.validators import validate_username
-from rest_framework.validators import UniqueValidator
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    '''Сериалайзер отзывов.'''
+    """Сериалайзер отзывов."""
     author = serializers.SlugRelatedField(
         read_only=True, slug_field='username',
     )
@@ -36,7 +36,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    '''Сериалайзер комментариев.'''
+    """Сериалайзер комментариев."""
     author = serializers.SlugRelatedField(
         read_only=True, slug_field='username'
     )
@@ -48,6 +48,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
+    """Сериалайзер произведений."""
     genre = serializers.SlugRelatedField(
         slug_field='slug', many=True, queryset=Genre.objects.all()
     )
@@ -61,7 +62,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
-
+    """Сериалайзер категорий."""
     class Meta:
         fields = ('name', 'slug',)
         model = Category
@@ -69,6 +70,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class GenreSerializer(serializers.ModelSerializer):
+    """Сериалайзер жанров."""
     class Meta:
         fields = ('name', 'slug',)
         model = Genre
@@ -89,14 +91,8 @@ class ReadOnlyTitleSerializer(serializers.ModelSerializer):
         )
 
 
-class GenreTitleSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = '__all__'
-        model = GenreTitle
-
-
 class UserSerializer(serializers.ModelSerializer):
-
+    """Сериалайзер пользователя."""
     username = serializers.CharField(
         required=True,
         max_length=150,
