@@ -2,11 +2,16 @@ from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db.models import Avg
+
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import (mixins, viewsets, permissions,
-                            status, generics, filters)
+from rest_framework import (mixins, viewsets, status, generics, filters)
 from rest_framework.decorators import action
+
+from rest_framework.views import APIView
+from rest_framework.permissions import (AllowAny, IsAuthenticatedOrReadOnly,
+                                        IsAuthenticated)
+
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -16,10 +21,12 @@ from rest_framework_simplejwt.tokens import AccessToken
 from .filters import TitlesFilter
 from .mixins import ListCreateDestroyViewSet
 
-from .permissions import (IsAuthorOrModeratorOrAdminOrReadOnly,
+from .permissions import (IsAuthorOrModeratorOrAdminOrReadOnly, AdminOnly, IsAdminOrReadOnly)
+
                           IsAuthenticated, AdminOnly, IsAdminOrReadOnly)
 from reviews.models import (Category, Genre,
                             Title, User, Review)
+
 from .serializers import (ReviewSerializer, CommentSerializer,
                           CategorySerializer, TitleSerializer, GenreSerializer,
                           ReadOnlyTitleSerializer,
@@ -40,7 +47,7 @@ class UserViewSet(viewsets.ModelViewSet):
         methods=['GET', 'PATCH'],
         detail=False,
         url_path='me',
-        permission_classes=[permissions.IsAuthenticated],
+        permission_classes=[IsAuthenticated],
     )
     def users_profile(self, request):
 
@@ -106,6 +113,7 @@ class TokenObtainView(generics.CreateAPIView):
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = [
+        IsAuthenticatedOrReadOnly,
         IsAuthorOrModeratorOrAdminOrReadOnly,
     ]
 
@@ -121,6 +129,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = [
+        IsAuthenticatedOrReadOnly,
         IsAuthorOrModeratorOrAdminOrReadOnly,
     ]
 
@@ -148,7 +157,7 @@ class TitleViewSet(viewsets.ModelViewSet):
         Avg("review_title__score")
     ).order_by("name")
     serializer_class = TitleSerializer
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrReadOnly, IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitlesFilter
 
@@ -162,7 +171,7 @@ class GenreViewSet(ListCreateDestroyViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     filter_backends = (filters.SearchFilter,)
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrReadOnly, IsAdminOrReadOnly,)
     search_fields = ('name',)
     lookup_field = 'slug'
 
@@ -174,6 +183,6 @@ class CategoryViewSet(mixins.CreateModelMixin,
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     filter_backends = (filters.SearchFilter,)
-    permission_classes = (IsAdminOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly, IsAdminOrReadOnly, )
     search_fields = ('name',)
     lookup_field = 'slug'
