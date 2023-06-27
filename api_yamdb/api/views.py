@@ -11,7 +11,6 @@ from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.permissions import (AllowAny, IsAuthenticatedOrReadOnly,
                                         IsAuthenticated)
-
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -21,17 +20,18 @@ from rest_framework_simplejwt.tokens import AccessToken
 from .filters import TitlesFilter
 from .mixins import ListCreateDestroyViewSet
 
-from .permissions import (IsAuthorOrModeratorOrAdminOrReadOnly, AdminOnly, IsAdminOrReadOnly)
-
-                          IsAuthenticated, AdminOnly, IsAdminOrReadOnly)
-from reviews.models import (Category, Genre,
-                            Title, User, Review)
-
+from .permissions import (IsAuthorOrModeratorOrAdminOrReadOnly, AdminOnly,
+                          IsAdminOrReadOnly,
+                          AdminOnly, IsAdminOrReadOnly)
 from .serializers import (ReviewSerializer, CommentSerializer,
                           CategorySerializer, TitleSerializer, GenreSerializer,
                           ReadOnlyTitleSerializer,
                           UserSerializer, UserMeSerializer,
                           SignUpSerializer, TokenSerializer)
+
+from reviews.models import (Category, Genre,
+                            Title, User, Review)
+
 
 
 class UserViewSet(viewsets.ModelViewSet):
