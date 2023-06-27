@@ -110,6 +110,7 @@ class TokenObtainView(generics.CreateAPIView):
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = [
+        IsAuthenticatedOrReadOnly,
         IsAuthorOrModeratorOrAdminOrReadOnly,
     ]
 
@@ -125,6 +126,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = [
+        IsAuthenticatedOrReadOnly,
         IsAuthorOrModeratorOrAdminOrReadOnly,
     ]
 
