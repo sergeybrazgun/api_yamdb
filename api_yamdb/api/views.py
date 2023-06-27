@@ -34,7 +34,6 @@ from .serializers import (ReviewSerializer, CommentSerializer,
 from reviews.models import (Category, Genre, Review, Title, User)
 
 
-
 class UserViewSet(viewsets.ModelViewSet):
     lookup_field = 'username'
     queryset = User.objects.all()
